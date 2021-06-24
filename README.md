@@ -6,3 +6,5 @@ Here is the v1 result for this repo model.
 `sample-*` dirs are experimental results .
 
 `s2p-*` is the process of making a dataset for comparison with style2paints.
+
+QQ Group: 1044867291
