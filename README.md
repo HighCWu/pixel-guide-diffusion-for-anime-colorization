@@ -7,6 +7,8 @@ Here is the v1 result for this repo model.
 
 `s2p-*` is the process of making a dataset for comparison with style2paints.
 
+`chaosinism-*` is the process of making a dataset for comparison with real anime-sketch pairs.
+
 QQ Group: 1044867291
 
 Discord: https://discord.gg/7jFpeyMf
