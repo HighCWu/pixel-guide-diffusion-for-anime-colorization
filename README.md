@@ -24,7 +24,7 @@ The model is divided into a 32px part and a super-divided part, which can be cas
 
 QQ Group: 1044867291
 
-Discord: https://discord.gg/3GWVmSp3
+Discord: https://discord.gg/YwWcAS47qb
 
 # Original README
 
