@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite it as below."
+authors:
+- family-names: "Wu"
+  given-names: "Hecong"
+title: "Pixel Guide Diffusion For Anime Colorization"
+version: 1.0.0
+date-released: 2021-10-26
+url: "https://github.com/HighCWu/pixel-guide-diffusion-for-anime-colorization"
