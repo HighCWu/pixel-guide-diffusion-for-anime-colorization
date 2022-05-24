@@ -166,12 +166,12 @@ def main():
                     with gr.Row():
                         example_sketch = gr.Dataset(
                             components=[sketch_in], 
-                            samples=[['imgs/miku_sketch.png'], ['imgs/ai_mon_sketch.png']]
+                            samples=[['docs/imgs/miku_sketch.png'], ['docs/imgs/ai_mon_sketch.png']]
                         )
                     with gr.Row():
                         example_real = gr.Dataset(
                             components=[sketch_in], 
-                            samples=[['imgs/miku.png'], ['imgs/ai_mon.png']]
+                            samples=[['docs/imgs/miku.png'], ['docs/imgs/ai_mon.png']]
                         )
         
         with gr.Row():
