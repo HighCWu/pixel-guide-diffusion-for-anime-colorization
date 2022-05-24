@@ -1,0 +1,4 @@
+blobfile>=1.0.5
+mpi4py
+gradio==3.0.4
+urllib3==1.21.1
