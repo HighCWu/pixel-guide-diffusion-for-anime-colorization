@@ -7,6 +7,7 @@ of samples from a regular model from image_sample.py.
 import gradio as gr
 import argparse
 import os
+import glob
 
 import blobfile as bf
 import numpy as np
@@ -164,14 +165,16 @@ def main():
                     with gr.Row():
                         generate_button = gr.Button('Generate')
                     with gr.Row():
+                        example_sketch_paths = [[p] for path in sorted(glob.glob('docs/imgs/anime_sketch/*.png'))]
                         example_sketch = gr.Dataset(
                             components=[sketch_in], 
-                            samples=[['docs/imgs/miku_sketch.png'], ['docs/imgs/ai_mon_sketch.png']]
+                            samples=[example_sketch_paths]
                         )
                     with gr.Row():
+                        example_real_paths = [[p] for path in sorted(glob.glob('docs/imgs/anime/*.png'))]
                         example_real = gr.Dataset(
                             components=[sketch_in], 
-                            samples=[['docs/imgs/miku.png'], ['docs/imgs/ai_mon.png']]
+                            samples=[example_real_paths]
                         )
         
         with gr.Row():

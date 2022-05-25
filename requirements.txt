@@ -1,4 +1,4 @@
-blobfile>=1.0.5
+blobfile
 mpi4py
 gradio==3.0.4
-urllib3==1.21.1
+urllib3==1.24.3
