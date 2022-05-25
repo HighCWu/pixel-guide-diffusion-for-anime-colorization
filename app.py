@@ -154,6 +154,19 @@ def main():
         return sketch_out, out
 
     with gr.Blocks() as demo:
+        gr.Markdown('''<center><h1>Anime-Colorization</h1></center>
+<h2>Colorize your anime sketches with this app.</h2>
+This is a Gradio Blocks app of 
+<a href="https://github.com/HighCWu/pixel-guide-diffusion-for-anime-colorization">
+HighCWu/pixel-guide-diffusion-for-anime-colorization
+</a>.<br />
+(PS: Training Datasets are made from <a href="https://www.kaggle.com/datasets/wuhecong/danbooru-sketch-pair-128x">
+HighCWu/danbooru-sketch-pair-128x
+</a> which processed real anime images to sketches by 
+<a href="https://github.com/lllyasviel/sketchKeras">SketchKeras</a>.
+So the model is not very sensitive to some different styles of sketches,
+and the colorized results of such sketches are not very good.)
+''')
         with gr.Row():
             with gr.Box():
                 with gr.Column():
@@ -174,11 +187,15 @@ def main():
                     with gr.Row():
                         generate_button = gr.Button('Generate')
                     with gr.Row():
+                        gr.Markdown('Click to add example as input.👇')
+                    with gr.Row():
                         example_sketch_paths = [[p] for p in sorted(glob.glob('docs/imgs/anime_sketch/*.png'))]
                         example_sketch = gr.Dataset(
                             components=[sketch_in], 
                             samples=example_sketch_paths
                         )
+                    with gr.Row():
+                        gr.Markdown('These are expect real outputs.👇')
                     with gr.Row():
                         example_real_paths = [[p] for p in sorted(glob.glob('docs/imgs/anime/*.png'))]
                         example_real = gr.Dataset(
@@ -199,6 +216,21 @@ def main():
                                 type="pil", 
                                 label="Colorization Result"
                             )
+                    with gr.Row():
+                        gr.Markdown(
+                            'Here are some samples 👇 [top: sketch, center: generated, bottom: real]'
+                        )
+                    with gr.Row():
+                        gr.Image(
+                            value="docs/imgs/sample.png",
+                            type="filepath", 
+                            interactive=False,
+                            label="Samples"
+                        )
+        gr.Markdown(
+            '<center><img src="https://visitor-badge.glitch.me/badge?page_id=gradio-blocks.anime-colorization" alt="visitor badge"/></center>'
+        )
+
         generate_button.click(
             inference, inputs=[sketch_in, seed_in, edges_in], outputs=[sketch_out, colorized_out]
         )
