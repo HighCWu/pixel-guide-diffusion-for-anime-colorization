@@ -2,3 +2,5 @@ blobfile
 mpi4py
 gradio==3.0.4
 urllib3==1.24.3
+torch
+torchvision

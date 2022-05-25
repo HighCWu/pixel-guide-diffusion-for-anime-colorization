@@ -39,27 +39,32 @@ OTHER_FLAGS = OTHER_FLAGS.replace('\r\n', ' ').replace('\n', ' ')
 flags = OTHER_FLAGS.split(' ') + MODEL_FLAGS.split(' ') + DIFFUSION_FLAGS.split(' ') + TEST_FLAGS.split(' ')
 
 
-def norm_size(img, size=128):
+def norm_size(img, size=128, add_edges=True):
     img = img.convert('L')
     w, h = img.size
-    max_size = max(w, h)
-    x0 = (max_size - w) // 2
-    y0 = (max_size - h) // 2
-    x1 = x0 + w
-    y1 = y0 + h
-    canvas = Image.new('L', (max_size,max_size), 255)
-    canvas.paste(img, (x0,y0,x1,y1))
+    if w != h:
+        scale = 1024 / max(img.size)
+        img = img.resize([int(round(s*scale)) for s in img.size])
+        w, h = img.size
+        max_size = max(w, h)
+        x0 = (max_size - w) // 2
+        y0 = (max_size - h) // 2
+        x1 = x0 + w
+        y1 = y0 + h
+        canvas = Image.new('L', (max_size,max_size), 255)
+        canvas.paste(img, (x0,y0,x1,y1))
 
-    draw = ImageDraw.Draw(canvas) 
-    draw.line((x0-2,0,x0-1,max_size), fill=0)
-    draw.line((0,y0-2,max_size,y0-1), fill=0)
-    draw.line((x1+1,0,x1+2,max_size), fill=0)
-    draw.line((0,y1+1,max_size,y1+2), fill=0)
+        if add_edges:
+            draw = ImageDraw.Draw(canvas) 
+            draw.line((x0-5,0,x0-1,max_size), fill=0)
+            draw.line((0,y0-5,max_size,y0-1), fill=0)
+            draw.line((x1+1,0,x1+5,max_size), fill=0)
+            draw.line((0,y1+1,max_size,y1+5), fill=0)
 
-    canvas = canvas.resize((size*2,size*2), resample=Image.BOX)
-    canvas = canvas.resize((size,size), resample=Image.BICUBIC)
+        img = canvas
+    img = img.resize((size,size), resample=Image.LANCZOS)
 
-    return canvas
+    return img
 
 
 def create_argparser():
@@ -115,9 +120,9 @@ def main():
     model2.to(dist_util.dev())
     model2.eval()
 
-    def inference(img, seed):
+    def inference(img, seed, add_edges):
         th.manual_seed(int(seed))
-        sketch = norm_size(img, size=128)
+        sketch = sketch_out = norm_size(img, size=128, add_edges=add_edges)
         sketch = np.asarray(sketch).astype(np.float32) / 127.5 - 1
         sketch = th.from_numpy(sketch).float()[None,None].to(dist_util.dev())
         model_kwargs = { "guide": sketch }
@@ -146,7 +151,7 @@ def main():
         out = out.transpose([1,2,0])
         out = Image.fromarray(out)
 
-        return out
+        return sketch_out, out
 
     with gr.Blocks() as demo:
         with gr.Row():
@@ -158,6 +163,10 @@ def main():
                             label='Seed'
                         )
                     with gr.Row():
+                        edges_in = gr.Checkbox(
+                            label="Add Edges"
+                        )
+                    with gr.Row():
                         sketch_in = gr.Image(
                             type="pil", 
                             label="Sketch"
@@ -165,28 +174,33 @@ def main():
                     with gr.Row():
                         generate_button = gr.Button('Generate')
                     with gr.Row():
-                        example_sketch_paths = [[p] for path in sorted(glob.glob('docs/imgs/anime_sketch/*.png'))]
+                        example_sketch_paths = [[p] for p in sorted(glob.glob('docs/imgs/anime_sketch/*.png'))]
                         example_sketch = gr.Dataset(
                             components=[sketch_in], 
-                            samples=[example_sketch_paths]
+                            samples=example_sketch_paths
                         )
                     with gr.Row():
-                        example_real_paths = [[p] for path in sorted(glob.glob('docs/imgs/anime/*.png'))]
+                        example_real_paths = [[p] for p in sorted(glob.glob('docs/imgs/anime/*.png'))]
                         example_real = gr.Dataset(
                             components=[sketch_in], 
-                            samples=[example_real_paths]
+                            samples=example_real_paths
                         )
         
-        with gr.Row():
             with gr.Box():
                 with gr.Column():
                     with gr.Row():
-                        colorized_out = gr.Image(
-                            type="pil", 
-                            label="Colorization result"
-                        )
+                        with gr.Column():
+                            sketch_out = gr.Image(
+                                type="pil", 
+                                label="Input"
+                            )
+                        with gr.Column():
+                            colorized_out = gr.Image(
+                                type="pil", 
+                                label="Colorization Result"
+                            )
         generate_button.click(
-            inference, inputs=[sketch_in, seed_in], outputs=[colorized_out]
+            inference, inputs=[sketch_in, seed_in, edges_in], outputs=[sketch_out, colorized_out]
         )
         example_sketch.click(
             fn=lambda examples: gr.Image.update(value=examples[0]), 
@@ -195,7 +209,6 @@ def main():
         )
         
         demo.launch()
-
 
 if __name__ == '__main__':
     main()
